@@ -4,20 +4,14 @@
 \alias{randomizeButton}
 \title{Action Button that Sends Users to Different Locations}
 \usage{
-randomizeButton(
-  inputId,
-  label,
-  group_link_pairs,
-  addQueryParameter = TRUE,
-  ...
-)
+randomizeButton(inputId, label, groupLinkPairs, addQueryParameter = TRUE, ...)
 }
 \arguments{
 \item{inputId}{Shiny input ID}
 
 \item{label}{The button label}
 
-\item{group_link_pairs}{A data frame with two columns "group" and "link"
+\item{groupLinkPairs}{A data frame with two columns "group" and "link"
 containing the group and URL links for randomization. See examples for more
 details.}
 
@@ -50,7 +44,7 @@ if (interactive()) {
  ui <- fluidPage(
    randomizeButton(inputId = "myId",
                    label = "Click me to randomize",
-                   group_link_pairs = keys,
+                   groupLinkPairs = keys,
                    addQueryParameter = TRUE)
  )
 

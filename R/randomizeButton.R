@@ -1,4 +1,58 @@
+#' Get a Random Link For Studies with Multiple Treatment Groups
+#'
+#' This function takes in a data frame of key-value paris for treatment groups
+#' and links and returns a link that can be passed into the "onclick" attribute
+#' of HTML buttons (e.g. [shiny::actionButton()]).
+#'
+#' @inheritParams randomizeButton
+#'
+#' @seealso randomizeButton
+#' @return A link based on key-value pairs for treatment groups.
+#' @export
+#'
+#' @examples
+#'
+#' keys <- data.frame(
+#'   group = c("A", "B"),
+#'   link = c("https://yourwebsite.com/this-task",
+#'   "https://yourwebsite.com/this-other-task")
+#' )
+#'
+#' if (interactive()) {
+#'
+#'  link <- random_link(groupLinkPairs = keys,
+#'  addQueryParameter = TRUE)
+#'
+#'  shiny::actionButton(
+#'    inputId = "randomId",
+#'    label = "Click me!",
+#'    onclick = paste0("window.location.replace('", link, "')"),
+#'  )
+#'
+#' }
+#'
+random_link <- function(groupLinkPairs, addQueryParameter = TRUE) {
 
+  .num_groups <- nrow(groupLinkPairs)
+  .thresholds <- seq(0,1, by = 1/.num_groups)
+  .thresholds <- .thresholds[which(.thresholds != 0 & .thresholds != 1)]
+  .value <- stats::runif(1)
+
+  group <- get_group(value = .value,
+                     num_groups = .num_groups,
+                     thresholds = .thresholds,
+                     key_pair = groupLinkPairs)
+
+  on_click_link <- groupLinkPairs[which(groupLinkPairs$group == group), "link"]
+
+  if (addQueryParameter) {
+    query <- ifelse(grepl("\\/$", on_click_link), "?group_id=", "/?group_id=")
+    on_click_link <- paste0(on_click_link, "/?group_id=", group)
+  }
+
+  return(on_click_link)
+
+}
 
 get_group <- function(value, num_groups, thresholds, key_pair) {
 
@@ -26,7 +80,7 @@ get_group <- function(value, num_groups, thresholds, key_pair) {
 #'
 #' @param inputId Shiny input ID
 #' @param label The button label
-#' @param group_link_pairs A data frame with two columns "group" and "link"
+#' @param groupLinkPairs A data frame with two columns "group" and "link"
 #'   containing the group and URL links for randomization. See examples for more
 #'   details.
 #' @param addQueryParameter LOGICAL: TRUE and a query parameter "group_id" will
@@ -52,7 +106,7 @@ get_group <- function(value, num_groups, thresholds, key_pair) {
 #'  ui <- fluidPage(
 #'    randomizeButton(inputId = "myId",
 #'                    label = "Click me to randomize",
-#'                    group_link_pairs = keys,
+#'                    groupLinkPairs = keys,
 #'                    addQueryParameter = TRUE)
 #'  )
 #'
@@ -66,29 +120,15 @@ get_group <- function(value, num_groups, thresholds, key_pair) {
 #' }
 #'
 #'
-randomizeButton <- function(inputId, label, group_link_pairs, addQueryParameter = TRUE, ...) {
+randomizeButton <- function(inputId, label, groupLinkPairs, addQueryParameter = TRUE, ...) {
 
-  .num_groups <- nrow(group_link_pairs)
-  .thresholds <- seq(0,1, by = 1/.num_groups)
-  .thresholds <- .thresholds[which(.thresholds != 0 & .thresholds != 1)]
-  .value <- stats::runif(1)
-
-  group <- get_group(value = .value,
-                     num_groups = .num_groups,
-                     thresholds = .thresholds,
-                     key_pair = group_link_pairs)
-
-  on_click_link <- group_link_pairs[which(group_link_pairs$group == group), "link"]
-
-  if (addQueryParameter) {
-    query <- ifelse(grepl("\\/$", on_click_link), "?group_id=", "/?group_id=")
-    on_click_link <- paste0(on_click_link, "/?group_id=", group)
-  }
+  link <- random_link(groupLinkPairs = groupLinkPairs,
+                            addQueryParameter = addQueryParameter)
 
   shiny::actionButton(
     inputId = inputId,
     label = label,
-    onclick = paste0("window.location.replace('", on_click_link, "')"),
+    onclick = paste0("window.location.replace('", link, "')"),
     ...
   )
 
