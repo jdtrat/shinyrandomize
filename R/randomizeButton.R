@@ -47,7 +47,7 @@ random_link <- function(groupLinkPairs, addQueryParameter = TRUE) {
 
   if (addQueryParameter) {
     query <- ifelse(grepl("\\/$", on_click_link), "?group_id=", "/?group_id=")
-    on_click_link <- paste0(on_click_link, "/?group_id=", group)
+    on_click_link <- paste0(on_click_link, query, group)
   }
 
   return(on_click_link)
@@ -133,6 +133,3 @@ randomizeButton <- function(inputId, label, groupLinkPairs, addQueryParameter = 
   )
 
 }
-
-
-
