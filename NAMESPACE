@@ -3,3 +3,4 @@
 export(rand_str)
 export(random_link)
 export(randomizeButton)
+export(time_string)
